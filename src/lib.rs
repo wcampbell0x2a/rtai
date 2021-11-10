@@ -106,7 +106,7 @@ pub enum KType {
 
 impl Default for KType {
     fn default() -> Self {
-        Self::Type(String::from(""))
+        Self::Type("".into())
     }
 }
 
@@ -167,83 +167,79 @@ types:
 "#;
         let kaitai: KaiTai = serde_yaml::from_str(&s).unwrap();
 
-        let inner_enum = HashMap::from([
-            (1, String::from("icmp")),
-            (6, String::from("tcp")),
-            (17, String::from("udp")),
-        ]);
+        let inner_enum = HashMap::from([(1, "icmp".into()), (6, "tcp".into()), (17, "udp".into())]);
 
-        let outer_enum = HashMap::from([(String::from("ip_protocol"), inner_enum)]);
+        let outer_enum = HashMap::from([("ip_protocol".into(), inner_enum)]);
 
         let expected = KaiTai {
             meta: Meta {
-                id: String::from("animal_record"),
+                id: "animal_record".into(),
                 endian: Some(Endian::Be),
             },
             seq: Vec::from([
                 Seq {
-                    id: String::from("uuid"),
-                    size: Some(String::from("16")),
+                    id: "uuid".into(),
+                    size: Some("16".into()),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("name"),
-                    size: Some(String::from("24")),
-                    k_type: Some(KType::Type(String::from("str"))),
-                    encoding: Some(String::from("UTF-8")),
+                    id: "name".into(),
+                    size: Some("24".into()),
+                    k_type: Some(KType::Type("str".into())),
+                    encoding: Some("UTF-8".into()),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("birth_year"),
-                    k_type: Some(KType::Type(String::from("u2"))),
+                    id: "birth_year".into(),
+                    k_type: Some(KType::Type("u2".into())),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("weight"),
-                    k_type: Some(KType::Type(String::from("f8"))),
+                    k_type: Some(KType::Type("f8".into())),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("rating"),
-                    k_type: Some(KType::Type(String::from("s4"))),
-                    doc: Some(String::from("Rating, can be negative")),
+                    id: "rating".into(),
+                    k_type: Some(KType::Type("s4".into())),
+                    doc: Some("Rating, can be negative".into()),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("name"),
-                    size: Some(String::from("16")),
-                    k_type: Some(KType::Type(String::from("str"))),
-                    encoding: Some(String::from("UTF-8")),
-                    terminator: Some(String::from("0")),
+                    id: "name".into(),
+                    size: Some("16".into()),
+                    k_type: Some(KType::Type("str".into())),
+                    encoding: Some("UTF-8".into()),
+                    terminator: Some("0".into()),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("has_crc32"),
-                    k_type: Some(KType::Type(String::from("u1"))),
+                    id: "has_crc32".into(),
+                    k_type: Some(KType::Type("u1".into())),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("crc32"),
-                    k_type: Some(KType::Type(String::from("u4"))),
-                    k_if: Some(String::from("has_crc32 != 0")),
+                    id: "crc32".into(),
+                    k_type: Some(KType::Type("u4".into())),
+                    k_if: Some("has_crc32 != 0".into()),
                     ..Seq::default()
                 },
             ]),
             enums: Some(outer_enum),
             types: Some(HashMap::from([(
-                String::from("str_with_len"),
+                "str_with_len".into(),
                 SeqValue {
                     seq: Vec::from([
                         Seq {
-                            id: String::from("len"),
-                            k_type: Some(KType::Type(String::from("u4"))),
+                            id: "len".into(),
+                            k_type: Some(KType::Type("u4".into())),
                             ..Seq::default()
                         },
                         Seq {
-                            id: String::from("value"),
-                            k_type: Some(KType::Type(String::from("str"))),
-                            encoding: Some(String::from("UTF-8")),
-                            size: Some(String::from("len")),
+                            id: "value".into(),
+                            k_type: Some(KType::Type("str".into())),
+                            encoding: Some("UTF-8".into()),
+                            size: Some("len".into()),
                             ..Seq::default()
                         },
                     ]),
@@ -286,50 +282,50 @@ types:
 
         let expected = KaiTai {
             meta: Meta {
-                id: String::from("testing"),
+                id: "testing".into(),
                 endian: None,
             },
             seq: Vec::from([
                 Seq {
-                    id: String::from("filenames"),
-                    k_type: Some(KType::Type(String::from("filename"))),
+                    id: "filenames".into(),
+                    k_type: Some(KType::Type("filename".into())),
                     repeat: Some(Repeat::EndOfStream),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("width"),
-                    k_type: Some(KType::Type(String::from("u4"))),
+                    id: "width".into(),
+                    k_type: Some(KType::Type("u4".into())),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("height"),
-                    k_type: Some(KType::Type(String::from("u4"))),
+                    id: "height".into(),
+                    k_type: Some(KType::Type("u4".into())),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("matrix"),
-                    k_type: Some(KType::Type(String::from("f8"))),
+                    id: "matrix".into(),
+                    k_type: Some(KType::Type("f8".into())),
                     repeat: Some(Repeat::Expression),
-                    repeat_expr: Some(String::from("width * height")),
+                    repeat_expr: Some("width * height".into()),
                     ..Seq::default()
                 },
             ]),
             types: Some(HashMap::from([(
-                String::from("filename"),
+                "filename".into(),
                 SeqValue {
                     seq: Vec::from([
                         Seq {
-                            id: String::from("name"),
-                            k_type: Some(KType::Type(String::from("str"))),
-                            size: Some(String::from("8")),
-                            encoding: Some(String::from("ASCII")),
+                            id: "name".into(),
+                            k_type: Some(KType::Type("str".into())),
+                            size: Some("8".into()),
+                            encoding: Some("ASCII".into()),
                             ..Seq::default()
                         },
                         Seq {
-                            id: String::from("ext"),
-                            k_type: Some(KType::Type(String::from("str"))),
-                            size: Some(String::from("3")),
-                            encoding: Some(String::from("ASCII")),
+                            id: "ext".into(),
+                            k_type: Some(KType::Type("str".into())),
+                            size: Some("3".into()),
+                            encoding: Some("ASCII".into()),
                             ..Seq::default()
                         },
                     ]),
@@ -362,28 +358,28 @@ types:
 
         let expected = KaiTai {
             meta: Meta {
-                id: String::from("testing"),
+                id: "testing".into(),
                 endian: None,
             },
             seq: Vec::from([Seq {
-                id: String::from("records"),
-                k_type: Some(KType::Type(String::from("buffer_with_len"))),
+                id: "records".into(),
+                k_type: Some(KType::Type("buffer_with_len".into())),
                 repeat: Some(Repeat::Until),
-                repeat_until: Some(String::from("_.len == 0")),
+                repeat_until: Some("_.len == 0".into()),
                 ..Seq::default()
             }]),
             types: Some(HashMap::from([(
-                String::from("buffer_with_len"),
+                "buffer_with_len".into(),
                 SeqValue {
                     seq: Vec::from([
                         Seq {
-                            id: String::from("len"),
-                            k_type: Some(KType::Type(String::from("u1"))),
+                            id: "len".into(),
+                            k_type: Some(KType::Type("u1".into())),
                             ..Seq::default()
                         },
                         Seq {
-                            id: String::from("value"),
-                            size: Some(String::from("len")),
+                            id: "value".into(),
+                            size: Some("len".into()),
                             ..Seq::default()
                         },
                     ]),
@@ -416,28 +412,28 @@ seq:
 
         let expected = KaiTai {
             meta: Meta {
-                id: String::from("testing"),
+                id: "testing".into(),
                 endian: None,
             },
             seq: Vec::from([
                 Seq {
-                    id: String::from("rec_type"),
-                    k_type: Some(KType::Type(String::from("u1"))),
+                    id: "rec_type".into(),
+                    k_type: Some(KType::Type("u1".into())),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("len"),
-                    k_type: Some(KType::Type(String::from("u4"))),
+                    id: "len".into(),
+                    k_type: Some(KType::Type("u4".into())),
                     ..Seq::default()
                 },
                 Seq {
-                    id: String::from("body"),
-                    size: Some(String::from("len")),
+                    id: "body".into(),
+                    size: Some("len".into()),
                     k_type: Some(KType::Switch(KTypeSwitch {
-                        switch_on: String::from("rec_type"),
+                        switch_on: "rec_type".into(),
                         cases: HashMap::from([
-                            (Value::from(1), String::from("rec_type_1")),
-                            (Value::from(2), String::from("rec_type_2")),
+                            (Value::from(1), "rec_type_1".into()),
+                            (Value::from(2), "rec_type_2".into()),
                         ]),
                         ..KTypeSwitch::default()
                     })),
