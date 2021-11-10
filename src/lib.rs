@@ -3,9 +3,13 @@
 //! Currently tested up to < 4.11 in https://doc.kaitai.io/user_guide.html
 
 // TODO: Implement Types for k_type
+// TODO: use serde_yaml::Value
+// TODO: use serde_yaml::Mapping
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use serde_yaml::Value;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 struct KaiTai {
@@ -29,7 +33,7 @@ pub struct Seq {
 
     // TODO: parse
     #[serde(rename = "type")]
-    k_type: Option<String>,
+    k_type: Option<KType>,
 
     encoding: Option<String>,
 
@@ -91,6 +95,26 @@ impl Default for Repeat {
     fn default() -> Self {
         Self::EndOfStream
     }
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum KType {
+    Type(String),
+    Switch(KTypeSwitch),
+}
+
+impl Default for KType {
+    fn default() -> Self {
+        Self::Type(String::from(""))
+    }
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
+pub struct KTypeSwitch {
+    #[serde(rename = "switch-on")]
+    switch_on: String,
+    cases: HashMap<Value, String>,
 }
 
 #[cfg(test)]
@@ -165,42 +189,42 @@ types:
                 Seq {
                     id: String::from("name"),
                     size: Some(String::from("24")),
-                    k_type: Some(String::from("str")),
+                    k_type: Some(KType::Type(String::from("str"))),
                     encoding: Some(String::from("UTF-8")),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("birth_year"),
-                    k_type: Some(String::from("u2")),
+                    k_type: Some(KType::Type(String::from("u2"))),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("weight"),
-                    k_type: Some(String::from("f8")),
+                    k_type: Some(KType::Type(String::from("f8"))),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("rating"),
-                    k_type: Some(String::from("s4")),
+                    k_type: Some(KType::Type(String::from("s4"))),
                     doc: Some(String::from("Rating, can be negative")),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("name"),
                     size: Some(String::from("16")),
-                    k_type: Some(String::from("str")),
+                    k_type: Some(KType::Type(String::from("str"))),
                     encoding: Some(String::from("UTF-8")),
                     terminator: Some(String::from("0")),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("has_crc32"),
-                    k_type: Some(String::from("u1")),
+                    k_type: Some(KType::Type(String::from("u1"))),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("crc32"),
-                    k_type: Some(String::from("u4")),
+                    k_type: Some(KType::Type(String::from("u4"))),
                     k_if: Some(String::from("has_crc32 != 0")),
                     ..Seq::default()
                 },
@@ -212,12 +236,12 @@ types:
                     seq: Vec::from([
                         Seq {
                             id: String::from("len"),
-                            k_type: Some(String::from("u4")),
+                            k_type: Some(KType::Type(String::from("u4"))),
                             ..Seq::default()
                         },
                         Seq {
                             id: String::from("value"),
-                            k_type: Some(String::from("str")),
+                            k_type: Some(KType::Type(String::from("str"))),
                             encoding: Some(String::from("UTF-8")),
                             size: Some(String::from("len")),
                             ..Seq::default()
@@ -268,23 +292,23 @@ types:
             seq: Vec::from([
                 Seq {
                     id: String::from("filenames"),
-                    k_type: Some(String::from("filename")),
+                    k_type: Some(KType::Type(String::from("filename"))),
                     repeat: Some(Repeat::EndOfStream),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("width"),
-                    k_type: Some(String::from("u4")),
+                    k_type: Some(KType::Type(String::from("u4"))),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("height"),
-                    k_type: Some(String::from("u4")),
+                    k_type: Some(KType::Type(String::from("u4"))),
                     ..Seq::default()
                 },
                 Seq {
                     id: String::from("matrix"),
-                    k_type: Some(String::from("f8")),
+                    k_type: Some(KType::Type(String::from("f8"))),
                     repeat: Some(Repeat::Expression),
                     repeat_expr: Some(String::from("width * height")),
                     ..Seq::default()
@@ -296,14 +320,14 @@ types:
                     seq: Vec::from([
                         Seq {
                             id: String::from("name"),
-                            k_type: Some(String::from("str")),
+                            k_type: Some(KType::Type(String::from("str"))),
                             size: Some(String::from("8")),
                             encoding: Some(String::from("ASCII")),
                             ..Seq::default()
                         },
                         Seq {
                             id: String::from("ext"),
-                            k_type: Some(String::from("str")),
+                            k_type: Some(KType::Type(String::from("str"))),
                             size: Some(String::from("3")),
                             encoding: Some(String::from("ASCII")),
                             ..Seq::default()
@@ -341,22 +365,20 @@ types:
                 id: String::from("testing"),
                 endian: None,
             },
-            seq: Vec::from([
-                Seq {
-                    id: String::from("records"),
-                    k_type: Some(String::from("buffer_with_len")),
-                    repeat: Some(Repeat::Until),
-                    repeat_until: Some(String::from("_.len == 0")),
-                    ..Seq::default()
-                },
-            ]),
+            seq: Vec::from([Seq {
+                id: String::from("records"),
+                k_type: Some(KType::Type(String::from("buffer_with_len"))),
+                repeat: Some(Repeat::Until),
+                repeat_until: Some(String::from("_.len == 0")),
+                ..Seq::default()
+            }]),
             types: Some(HashMap::from([(
                 String::from("buffer_with_len"),
                 SeqValue {
                     seq: Vec::from([
                         Seq {
                             id: String::from("len"),
-                            k_type: Some(String::from("u1")),
+                            k_type: Some(KType::Type(String::from("u1"))),
                             ..Seq::default()
                         },
                         Seq {
@@ -373,4 +395,58 @@ types:
         assert_eq!(expected, kaitai);
     }
 
+    #[test]
+    fn test_4_11_tlv_impl() {
+        let s = r#"meta:
+    id: testing
+seq:
+  - id: rec_type
+    type: u1
+  - id: len
+    type: u4
+  - id: body
+    size: len
+    type:
+      switch-on: rec_type
+      cases:
+        1: rec_type_1
+        2: rec_type_2
+"#;
+        let kaitai: KaiTai = serde_yaml::from_str(&s).unwrap();
+
+        let expected = KaiTai {
+            meta: Meta {
+                id: String::from("testing"),
+                endian: None,
+            },
+            seq: Vec::from([
+                Seq {
+                    id: String::from("rec_type"),
+                    k_type: Some(KType::Type(String::from("u1"))),
+                    ..Seq::default()
+                },
+                Seq {
+                    id: String::from("len"),
+                    k_type: Some(KType::Type(String::from("u4"))),
+                    ..Seq::default()
+                },
+                Seq {
+                    id: String::from("body"),
+                    size: Some(String::from("len")),
+                    k_type: Some(KType::Switch(KTypeSwitch {
+                        switch_on: String::from("rec_type"),
+                        cases: HashMap::from([
+                            (Value::from(1), String::from("rec_type_1")),
+                            (Value::from(2), String::from("rec_type_2")),
+                        ]),
+                        ..KTypeSwitch::default()
+                    })),
+                    ..Seq::default()
+                },
+            ]),
+            ..KaiTai::default()
+        };
+
+        assert_eq!(expected, kaitai);
+    }
 }
